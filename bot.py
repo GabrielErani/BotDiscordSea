@@ -2,11 +2,17 @@ import discord
 from discord.ext import commands
 from discord.utils import get
 import asyncio
-import os  # Importar os para acessar variáveis de ambiente
+import os
+from dotenv import load_dotenv
+from keep_alive import keep_alive  # Importar a função keep_alive
+
+# Carregar variáveis de ambiente
+load_dotenv()
 
 intents = discord.Intents.default()
 intents.message_content = True  # Permite ler o conteúdo das mensagens
 intents.members = True  # Necessário para acessar guild.owner e member permissions
+
 bot = commands.Bot(command_prefix='!', intents=intents)
 
 bot.cancel_update = False  # Flag para cancelar o processo de atualização
@@ -15,13 +21,13 @@ bot.cancel_update = False  # Flag para cancelar o processo de atualização
 async def on_ready():
     print(f'🤖 Bot conectado como {bot.user}')
 
-# Evento para adicionar a role 'Não Verificado' aos novos membros
+# Evento para adicionar a role '🚫 Não Verificado' aos novos membros
 @bot.event
 async def on_member_join(member):
     role = get(member.guild.roles, name='🚫 Não Verificado')
     if role:
         await member.add_roles(role)
-        print(f"🚫 Role 'Não Verificado' adicionada a {member.name}")
+        print(f"🚫 Role '🚫 Não Verificado' adicionada a {member.name}")
 
 # Função para configurar roles
 async def setup_roles(guild, ctx):
@@ -328,8 +334,9 @@ Lembrem-se, estamos aqui para compartilhar histórias, cantar canções e navega
             else:
                 await ctx.send("⚠️ Canal 📜-regras não encontrado.")
 
-            # Enviar dicas no canal 🗺️-dicas
-            dicas_channel = get(guild.text_channels, name='🗺️-dicas')
+            # Enviar dicas no canal 🗺️-dicas usando ID
+            dicas_channel_id = 123456789012345678  # Substitua pelo ID real do canal 🗺️-dicas
+            dicas_channel = bot.get_channel(dicas_channel_id)
             if dicas_channel:
                 dicas_message = """
 📜 **Dicas e Estratégias de Sea of Thieves** 📜
@@ -353,7 +360,8 @@ Lembre-se, a vida de pirata é cheia de perigos e recompensas. Aventure-se, form
                 await dicas_channel.send(dicas_message)
                 await ctx.send("🗺️ Mensagem de dicas enviada.")
             else:
-                await ctx.send("⚠️ Canal 🗺️-dicas não encontrado.")
+                await ctx.send("⚠️ Canal 🗺️-dicas não encontrado. Verifique se o ID está correto.")
+
         except Exception as e:
             await ctx.send(f"⚠️ Erro ao enviar mensagens automáticas: {e}")
 
